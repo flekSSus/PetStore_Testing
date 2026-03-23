@@ -1,0 +1,669 @@
+{
+  "info": {
+    "_postman_id": "01a6bd90-8fc4-4630-b2c8-e84f6703b80e",
+    "name": "PetStore",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53088599",
+    "_collection_link": "https://go.postman.co/collection/53088599-01a6bd90-8fc4-4630-b2c8-e84f6703b80e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Pet",
+      "item": [
+        {
+          "name": "Create Pet",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const newPetId = Math.floor(Math.random() * 100) + 1;",
+                  "pm.environment.set(\"petId\", newPetId);",
+                  "",
+                  "const petName = \"Pet_\" + newPetId;",
+                  "pm.environment.set(\"petName\", petName);",
+                  "",
+                  "console.log(`Создан питомец: ID=${newPetId}, имя=${petName}`);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has id\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"id\");",
+                  "",
+                  "});",
+                  "",
+                  "pm.test(\"Name matches request\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var requestBody = pm.request.body.raw;",
+                  "    var requestData = JSON.parse(requestBody);",
+                  "    pm.expect(jsonData.name).to.eql(requestData.name);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type = application/json\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "const Ajv = require('ajv');",
+                  "const ajv = new Ajv({ allErrors: true });",
+                  "",
+                  "const petSchema = {",
+                  "  \"id\": 1,",
+                  "  \"name\": \"{{petName}}\",",
+                  "  \"category\": {",
+                  "    \"id\": 1,",
+                  "    \"name\": \"Cats\"",
+                  "  },",
+                  "  \"photoUrls\": [",
+                  "    \"string\"",
+                  "  ],",
+                  "  \"tags\": [",
+                  "    {",
+                  "      \"id\": 1,",
+                  "      \"name\": \"string\"",
+                  "    }",
+                  "  ],",
+                  "  \"status\": \"available\"",
+                  "};",
+                  "",
+                  "pm.test(\"Valid JSON response\", () => {",
+                  "  const valid = ajv.validate(petSchema, pm.response.json());",
+                  "  pm.expect(valid).to.be.true;",
+                  "  if (!valid) console.log(ajv.errors);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "abc123",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "test",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{petId}},\n  \"name\": \"{{petName}}\",\n  \"category\": {\n    \"id\": 1,\n    \"name\": \"Cats\"\n  },\n  \"photoUrls\": [\n    \"string\"\n  ],\n  \"tags\": [\n    {\n      \"id\": 1,\n      \"name\": \"string\"\n    }\n  ],\n  \"status\": \"available\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/pet",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Pet",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 10012,\n  \"name\": \"Bobick\",\n  \"category\": {\n    \"id\": 1,\n    \"name\": \"Cats\"\n  },\n  \"photoUrls\": [\n    \"string\"\n  ],\n  \"tags\": [\n    {\n      \"id\": 2,\n      \"name\": \"favorites\"\n    }\n  ],\n  \"status\": \"available\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/pet/",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "pet",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "FindPet_Tag",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "apiKey",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "api_key",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 10012,\n  \"name\": \"Vova\",\n  \"category\": {\n    \"id\": 1,\n    \"name\": \"Cats\"\n  },\n  \"photoUrls\": [\n    \"string\"\n  ],\n  \"tags\": [\n    {\n      \"id\": 1,\n      \"name\": \"string\"\n    }\n  ],\n  \"status\": \"available\"\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/pet/findByTags?tags=favorites",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "findByTags"
+              ],
+              "query": [
+                {
+                  "key": "tags",
+                  "value": "favorites"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "FindPet_Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/pet/findByStatus?status=available",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "findByStatus"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "available"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "FindPet_ID",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "apiKey",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "api_key",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 10012,\n  \"name\": \"Vova\",\n  \"category\": {\n    \"id\": 1,\n    \"name\": \"Cats\"\n  },\n  \"photoUrls\": [\n    \"string\"\n  ],\n  \"tags\": [\n    {\n      \"id\": 1,\n      \"name\": \"string\"\n    }\n  ],\n  \"status\": \"available\"\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/pet/15",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "15"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Pet( with data)",
+          "request": {
+            "auth": {
+              "type": "oauth2",
+              "oauth2": [
+                {
+                  "key": "addTokenTo",
+                  "value": "header",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 10012,\n  \"name\": \"Vova\",\n  \"category\": {\n    \"id\": 1,\n    \"name\": \"Cats\"\n  },\n  \"photoUrls\": [\n    \"string\"\n  ],\n  \"tags\": [\n    {\n      \"id\": 1,\n      \"name\": \"string\"\n    }\n  ],\n  \"status\": \"available\"\n}"
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/pet/11?name=Dog11&status=available",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "11"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "Dog11"
+                },
+                {
+                  "key": "status",
+                  "value": "available"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Pet",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "12345",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "api_key",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/pet/15",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "15"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Image",
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "special-key",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "api_key",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "uuid": "870db38c-5079-417c-b99d-54697144f700",
+                  "src": "postman-cloud:///1f126b1a-0003-40f0-b3cd-3f1d6aa41c92"
+                },
+                {
+                  "key": "additionalMetadata",
+                  "type": "text",
+                  "uuid": "e6a640bc-89d9-4dd8-b67b-03f27f82adde",
+                  "value": "oeooeo"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/pet/11/uploadImage?additionalMetadata=oeooeo",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "pet",
+                "11",
+                "uploadImage"
+              ],
+              "query": [
+                {
+                  "key": "additionalMetadata",
+                  "value": "oeooeo"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Store",
+      "item": [
+        {
+          "name": "Place an Order",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 10,\n  \"petId\": 198772,\n  \"quantity\": 7,\n  \"shipDate\": \"2026-03-23T12:21:48.124Z\",\n  \"status\": \"approved\",\n  \"complete\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/store/order",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pet Inventories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/store/inventory",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "store",
+                "inventory"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Find Purchase",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/store/order/14",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "14"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/store/order/14",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "store",
+                "order",
+                "14"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Create User",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"username\": \"test\",\n  \"firstName\": \"Vova\",\n  \"lastName\": \"Rusak\",\n  \"email\": \"vova@email.com\",\n  \"password\": \"abc123\",\n  \"phone\": \"12345\",\n  \"userStatus\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/user",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Log In",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/user/login?username=test&password=abc123",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ],
+              "query": [
+                {
+                  "key": "username",
+                  "value": "test"
+                },
+                {
+                  "key": "password",
+                  "value": "abc123"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Log Out",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/user/logout",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 10,\n  \"username\": \"user2\",\n  \"firstName\": \"John\",\n  \"lastName\": \"James\",\n  \"email\": \"john@email.com\",\n  \"password\": \"12345\",\n  \"phone\": \"12345\",\n  \"userStatus\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/user/theUser",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user",
+                "theUser"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/user/theUser",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "user",
+                "theUser"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          "const VALID_ENV_NAMES = [\"PetStore\"];",
+          "const REQUIRED_VAR_1 = \"BaseUrl\";  ",
+          "",
+          "const currentEnvName = pm.environment.name;",
+          "const value_1 = pm.environment.get(REQUIRED_VAR_1);",
+          "",
+          "if (!currentEnvName) {",
+          "    throw new Error(\"Не выбрано окружение. Выберите окружение в Postman.\");",
+          "}",
+          "",
+          "if (!VALID_ENV_NAMES.includes(currentEnvName)) {",
+          "    throw new Error(`Окружение \"${currentEnvName}\" не разрешено. Разрешены: ${EXPECTED_ENV_NAMES.join(\", \")}`);",
+          "}",
+          "",
+          "if (!value_1) {",
+          "    throw new Error(` В окружении \"${currentEnvName}\" отсутствует  переменная \"${REQUIRED_VAR_1}\" .`);",
+          "}",
+          "",
+          "console.log(`Окружение \"${currentEnvName}\" содержит переменную \"${REQUIRED_VAR_1}\": ${value_1}`);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
